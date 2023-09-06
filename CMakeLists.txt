@@ -7,10 +7,17 @@ project(space_apocalypse)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(OpenCV 4 REQUIRED)
+
+find_package(SFML 2.5 COMPONENTS system window graphics REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  sensor_msgs
+  cv_bridge
+  image_transport
 )
 
 ## System dependencies are found with CMake's conventions
@@ -73,7 +80,7 @@ find_package(catkin REQUIRED COMPONENTS
 #   std_msgs
 # )
 
-################################################
+################################################Segmentation fault (core dumped)
 ## Declare ROS dynamic reconfigure parameters ##
 ################################################
 
@@ -118,7 +125,10 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
+
+# include_directories(${OpenCV_INCLUDE_DIRS})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -133,7 +143,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/space_apocalypse_node.cpp)
+add_executable(${PROJECT_NAME}_node src/main.cpp src/Bullet.cpp src/Enemy.cpp src/Game.cpp src/Player.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -146,9 +156,7 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(${PROJECT_NAME}_node  ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} sfml-graphics sfml-window sfml-system)
 
 #############
 ## Install ##
@@ -159,10 +167,11 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+
+catkin_install_python(PROGRAMS
+  scripts/hand_tracker.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
@@ -204,3 +213,5 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+
