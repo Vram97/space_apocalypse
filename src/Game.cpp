@@ -7,6 +7,7 @@ void Game::initVariables()
 {
     this->points = 0;
     this->endGame = false;
+    this->pub_game = nh_game.advertise<std_msgs::Float32MultiArray>("game_publisher", 25);
 
 }
 
@@ -81,7 +82,13 @@ void Game::run()
         {
             this->update();
         }
+        else
+        {
+            this->window->close();
+        }
         
+        this->pub_game.publish(ImageConverter::sfmlImageToROSImage(this->window->capture()));
+
         this->render();
 
         ros::spinOnce();

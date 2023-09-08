@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Bullet.h"
 #include "Enemy.h"
+#include "ImageConverter.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -10,6 +11,8 @@
 #include <unordered_map>
 #include <sstream>
 #include <std_msgs/Float32MultiArray.h>
+#include<sensor_msgs/Image.h>
+#include<ros/ros.h>
 
 
 
@@ -50,6 +53,10 @@ private:
     Enemy* enemy;
     float spawnTimer;
     float spawnTimerMax;
+
+    // Publisher
+    ros::NodeHandle nh_game;
+    ros::Publisher pub_game;
 
     //Private functions
     void initVariables();

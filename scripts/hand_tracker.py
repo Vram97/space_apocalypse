@@ -13,14 +13,15 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from std_msgs.msg import Float32MultiArray
 
-print("Before function")
+bridge=CvBridge()
 
 
 def landmark_tracker():
     print("Inside function")
     
     pub = rospy.Publisher('hand_tracker_publisher', Float32MultiArray, queue_size=20)
-
+    # Create a publisher that sends image data from the camera
+    pub_img=rospy.Publisher('rgb_img', Image, queue_size=20)
     # rospy.init_node('hand_tracker', anonymous=True)
     
     rate=rospy.Rate(25)
@@ -50,12 +51,16 @@ def landmark_tracker():
         with mp_hand.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.8) as hands:
             # print("with hands")
             while cap.isOpened():
-                print("yo")
+                
                 success, img = cap.read()
+                
                 # msg.data=[0,0,0]
                 # start = time.time()
                 image=cv2.flip(img,1)
                 img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+                pub_img.publish(bridge.cv2_to_imgmsg(img_rgb, "rgb8"))
+
                 results = hands.process(img_rgb)
                 # end = time.time()
                 # print(end - start)
@@ -108,10 +113,10 @@ def landmark_tracker():
                                     del points[0] # Delte the first element of the list
                                     # pub.publish(msg)
 
-                        mp_draw.draw_landmarks(img_rgb, hand_landmarks, mp_hand.HAND_CONNECTIONS)
+                        # mp_draw.draw_landmarks(img_rgb, hand_landmarks, mp_hand.HAND_CONNECTIONS)
+                        # cv2.imshow("Live cam", img_rgb)
                         break
-                    
-                    # cv2.imshow("Image", img_rgb)
+
                     pub.publish(msg)
                     # rate.sleep()
                 # pub.publish(msg)
