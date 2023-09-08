@@ -9,6 +9,8 @@ import time
 
 #Import ROS libraries and message types
 import rospy
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 from std_msgs.msg import Float32MultiArray
 
 print("Before function")
@@ -16,9 +18,10 @@ print("Before function")
 
 def landmark_tracker():
     print("Inside function")
+    
     pub = rospy.Publisher('hand_tracker_publisher', Float32MultiArray, queue_size=20)
 
-    rospy.init_node('hand_tracker', anonymous=True)
+    # rospy.init_node('hand_tracker', anonymous=True)
     
     rate=rospy.Rate(25)
 
@@ -32,7 +35,14 @@ def landmark_tracker():
         
         mp_hand = mp.solutions.hands
         mp_draw = mp.solutions.drawing_utils
+        # bridge=CvBridge()
 
+        # try:
+        #     img_rgb = bridge.imgmsg_to_cv2(img_msg, "rgb8")
+        # except Exception as e:
+        #     print(e)
+        #     return
+        
         cap = cv2.VideoCapture(0)
         print("Video cap")
         points = []
@@ -40,7 +50,7 @@ def landmark_tracker():
         with mp_hand.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.8) as hands:
             # print("with hands")
             while cap.isOpened():
-                # print("yo")
+                print("yo")
                 success, img = cap.read()
                 # msg.data=[0,0,0]
                 # start = time.time()
@@ -94,16 +104,16 @@ def landmark_tracker():
                                         comp_y = -comp_y
                                         
                                     msg.data=[min(x_diff,comp_x),min(y_diff,comp_y),angle]
-                                    cv2.line(image, (int(points[0][0]*640), int(points[0][1]*480)), (int(points[1][0]*640), int(points[1][1]*480)), (0,255,0), 5)
+                                    # cv2.line(image, (int(points[0][0]*640), int(points[0][1]*480)), (int(points[1][0]*640), int(points[1][1]*480)), (0,255,0), 5)
                                     del points[0] # Delte the first element of the list
                                     # pub.publish(msg)
 
-                        mp_draw.draw_landmarks(image, hand_landmarks, mp_hand.HAND_CONNECTIONS)
+                        mp_draw.draw_landmarks(img_rgb, hand_landmarks, mp_hand.HAND_CONNECTIONS)
                         break
                     
-                # cv2.imshow("Image", image)
+                    # cv2.imshow("Image", img_rgb)
                     pub.publish(msg)
-                    rate.sleep()
+                    # rate.sleep()
                 # pub.publish(msg)
             # pub.publish(msg)
         # pub.publish(msg)
@@ -111,6 +121,9 @@ def landmark_tracker():
 
 
 if __name__ == "__main__":
+    rospy.init_node('hand_tracker', anonymous=True)
+    # rospy.Subscriber("rgb_img", Image, landmark_tracker)
+    # rospy.spin()
     try:
         landmark_tracker()
     except rospy.ROSInterruptException:

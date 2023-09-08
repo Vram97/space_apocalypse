@@ -22,7 +22,7 @@ void Player::initTexture()
 
 void Player::initSprite()
 {
-    this->sprite.setPosition(0.f, 0.f);
+    this->sprite.setPosition(200.f, 200.f);
 }
 
 Player::Player(float x, float y)

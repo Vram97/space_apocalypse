@@ -1,0 +1,11 @@
+<launch>
+  <!-- Launch the hand_tracker node -->
+  <node name="hand_tracker" pkg="space_apocalypse" type="hand_tracker.py" output="screen">
+    <!-- Add any node-specific arguments here -->
+  </node>
+
+  <!-- Launch the space_apocalypse node -->
+  <node name="space_apocalypse_node" pkg="space_apocalypse" type="space_apocalypse_node" output="screen">
+    <!-- Add any node-specific arguments here -->
+  </node>
+</launch>

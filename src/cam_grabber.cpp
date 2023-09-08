@@ -24,18 +24,25 @@ int main(int argc, char** argv)
   
   sensor_msgs::ImagePtr msg;
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(25);
 
   cv::Mat frame;
 
   while (nh.ok()) {
     
 
-    bool suc=cap .read(frame);
+    bool suc=cap.read(frame);
+
+    //Convert to RGB
+    cv::cvtColor(frame,frame,cv::COLOR_BGR2RGB);
+
+    // Flip the image
+    cv::flip(frame,frame,1);
+
 
     if(!frame.empty())
     {
-      msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", frame).toImageMsg();
+      msg = cv_bridge::CvImage(std_msgs::Header(), "rgb8", frame).toImageMsg();
       pub.publish(msg);
     }
     else
