@@ -28,7 +28,7 @@ git clone https://github.com/Vram97/space_apocalypse.git
 - Use right click to shoot at the falling debris. Getting hit by them will reduce your health.
 
 ## 4. Run
-This section discusses the setup of parameters and running the launch file.
+This section gives instructions on running the launch file.
 ```
 roslaunch space_apocalypse StartGame.launch
 ```
