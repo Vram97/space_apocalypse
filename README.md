@@ -33,5 +33,5 @@ This section discusses the setup of parameters and running the launch file.
 roslaunch space_apocalypse StartGame.launch
 ```
 ## 5. Output
-
+![Working GIF](https://github.com/Vram97/space_apocalypse/blob/master/game_tutorial.gif)
 
