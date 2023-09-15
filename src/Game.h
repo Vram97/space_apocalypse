@@ -7,8 +7,9 @@
 
 #include <ros/ros.h>
 #include <ros/package.h>
+#include <yaml-cpp/yaml.h>
 #include <std_msgs/Float32MultiArray.h>
-#include<sensor_msgs/Image.h>
+#include <sensor_msgs/Image.h>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -28,6 +29,7 @@ private:
     int points;
     bool endGame;
     std::string PACKAGE_PATH;
+    YAML::Node config;
 
 
     //GUI
@@ -59,7 +61,9 @@ private:
 
     // Publisher
     ros::NodeHandle nh_game;
+    ros::NodeHandle nh_move_player;
     ros::Publisher pub_game;
+    ros::Subscriber sub_move_player;
 
     // Private functions
     void initVariables();

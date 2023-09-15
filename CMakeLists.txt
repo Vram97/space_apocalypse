@@ -11,6 +11,8 @@ find_package(OpenCV 4 REQUIRED)
 
 find_package(SFML 2.5 COMPONENTS system window graphics REQUIRED)
 
+find_package(yaml-cpp REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -157,7 +159,7 @@ add_executable(${PROJECT_NAME}_node src/main.cpp src/Bullet.cpp src/Enemy.cpp sr
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node  ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} sfml-graphics sfml-window sfml-system)
+target_link_libraries(${PROJECT_NAME}_node  ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} sfml-graphics sfml-window sfml-system yaml-cpp)
 #target_link_libraries(cam_grabber_node  ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 #############

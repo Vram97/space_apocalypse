@@ -30,10 +30,6 @@ int main(int argc, char** argv)
 
     ROS_INFO("Game started");
 
-    // Subscribing to the hand tracker publisher.
-    // The default rate is 25 Hz because my hand tracker publishes at 25 Hz.
-    ros::Subscriber sub = nh.subscribe("hand_tracker_publisher", 25, &Game::movePlayer, &game);
-
     // Running the game.
     game.run();
 

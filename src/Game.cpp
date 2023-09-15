@@ -1,14 +1,18 @@
 #include "Game.h"
+
+#include <ros/ros.h>
 #include <iostream>
-#include<ros/ros.h>
+
 
 // Private functions
 void Game::initVariables()
 {
     this->points = 0;
     this->endGame = false;  // Game ends when player loses all health.
-    this->pub_game = nh_game.advertise<std_msgs::Float32MultiArray>("game_publisher", 25); // Publisher for the game.
     this->PACKAGE_PATH = ros::package::getPath("space_apocalypse");  // Path to the package.
+    this->config = YAML::LoadFile(this->PACKAGE_PATH + "/config/config.yaml");  // Loading the config file.
+    this->pub_game = nh_game.advertise<std_msgs::Float32MultiArray>("game_publisher", this->config["FrameRate"].as<int>()); // Publisher for the game. 
+    this->sub_move_player = nh_move_player.subscribe("hand_tracker_publisher", this->config["FrameRate"].as<int>(), &Game::movePlayer, this);  // Subscriber for the hand tracker. The default rate is 25 Hz because my hand tracker publishes at 25 Hz.
 
 }
 
