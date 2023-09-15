@@ -5,14 +5,17 @@
 #include "Enemy.h"
 #include "ImageConverter.h"
 
+#include <ros/ros.h>
+#include <ros/package.h>
+#include <std_msgs/Float32MultiArray.h>
+#include<sensor_msgs/Image.h>
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
+
 #include <unordered_map>
 #include <sstream>
-#include <std_msgs/Float32MultiArray.h>
-#include<sensor_msgs/Image.h>
-#include<ros/ros.h>
 
 
 
@@ -25,6 +28,7 @@ private:
     sf::Clock dtClock;
     int points;
     bool endGame;
+    string PACKAGE_PATH;
 
 
     //GUI
@@ -58,7 +62,7 @@ private:
     ros::NodeHandle nh_game;
     ros::Publisher pub_game;
 
-    //Private functions
+    // Private functions
     void initVariables();
     void initTextures();
     void initWindow();
@@ -76,8 +80,8 @@ public:
     void updatePollEvents();
     void updateBullets();
     void updateEnemiesAndCombat();
-    void updateInput();
-    void movePlayer(const std_msgs::Float32MultiArray::ConstPtr& msg);
+    void updateInput();     // Mouse input
+    void movePlayer(const std_msgs::Float32MultiArray::ConstPtr& msg);   // Hand gesture input
     void updateGUI();
     void update();
     void renderGUI();

@@ -6,21 +6,22 @@
 void Game::initVariables()
 {
     this->points = 0;
-    this->endGame = false;
-    this->pub_game = nh_game.advertise<std_msgs::Float32MultiArray>("game_publisher", 25);
+    this->endGame = false;  // Game ends when player loses all health.
+    this->pub_game = nh_game.advertise<std_msgs::Float32MultiArray>("game_publisher", 25); // Publisher for the game.
+    this->PACKAGE_PATH = ros::package::getPath("space_apocalypse");  // Path to the package.
 
 }
 
 void Game::initTextures()
 {
     this->textures["BULLET"] = new sf::Texture();
-    this->textures["BULLET"]->loadFromFile("/home/shivaram/Code/sfml_tutorials/Textures/bullet.png");
+    this->textures["BULLET"]->loadFromFile(this->PACKAGE_PATH + "/data/Textures/bullet.png");
 }
 
 void Game::initWindow()
 {
-    this->videoMode = sf::VideoMode(800, 600);
-    this->window = new sf::RenderWindow(this->videoMode, "Game 3", sf::Style::Titlebar | sf::Style::Close);
+    this->videoMode = sf::VideoMode(800, 600);  // This is where the size of the window is set.
+    this->window = new sf::RenderWindow(this->videoMode, "Space Apocalypse", sf::Style::Titlebar | sf::Style::Close);
     this->window->setFramerateLimit(60);
     this->window->setVerticalSyncEnabled(false);
 
@@ -35,11 +36,53 @@ void Game::initEnemies()
 void Game::initPlayer()
 {
     this->player = new Player();
-    this->enemy=new Enemy(20.f,0.f);
+    this->enemy=new Enemy(20.f,0.f); // Initializing the enemy object.
 }
 
+void Game::initGUI()
+{   
+    // Loading font from the default location in Ubuntu.
+    if(!this->font.loadFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf"))
+    {
+        std::cout << "ERROR::GAME::INITGUI::Failed to load font" << "\n";
+    }
+
+    // Initializing the text for the points.
+    this->pointText.setFont(this->font);
+    this->pointText.setCharacterSize(24);
+    this->pointText.setFillColor(sf::Color::White);
+    this->pointText.setString("None");
+    this->pointText.setPosition(sf::Vector2f(650.f, 10.f));
+
+    // Initializing the text for the game over message.
+    this->gameOverText.setFont(this->font);
+    this->gameOverText.setCharacterSize(60);
+    this->gameOverText.setFillColor(sf::Color::Red);
+    this->gameOverText.setString("Game Over!");
+    
+    // Initializing the player health bar.
+    this->playerHpBar.setSize(sf::Vector2f(300.f, 25.f));
+    this->playerHpBar.setFillColor(sf::Color::Red);
+    this->playerHpBar.setPosition(sf::Vector2f(20.f, 20.f));
+    this->playerHpBarBack = this->playerHpBar;
+    this->playerHpBarBack.setFillColor(sf::Color(25, 25, 25, 200));
+}
+
+void Game::initWorld()
+{   // Initializing the background image for the game.
+    if(!this->worldBackgroundTex.loadFromFile(this->PACKAGE_PATH + "/data/Textures/space.jpg")){
+        std::cout<<"ERROR::GAME::INITWORLD::Failed to load world background texture"<<std::endl;
+    }
+    this->worldBackground.setTexture(this->worldBackgroundTex);
+
+}
+/******************************************************************************
+*                       PUBLIC METHOD DEFINITIONS                             *                       *
+*******************************************************************************/
+
 Game::Game()
-{
+{   // Constructor that initializes all the variables required by the game.
+
     this->initVariables();
     this->initWindow();
     this->initPlayer();
@@ -73,20 +116,22 @@ Game::~Game()
     }
 }
 
-//Functions
+
 void Game::run()
 {
     while(this->window->isOpen())
-    {   this->updatePollEvents();
+    {   
+        this->updatePollEvents();
         if(this->endGame == false)
         {
             this->update();
         }
         else
         {
-            this->window->close();
+            this->window->close();  // Close the window when the game ends.
         }
-        
+
+        // This is where the game publisher publishes the game image as a ROS message.
         this->pub_game.publish(ImageConverter::sfmlImageToROSImage(this->window->capture()));
 
         this->render();
@@ -95,36 +140,9 @@ void Game::run()
     }
 }
 
-void Game::initGUI()
-{
-    if(!this->font.loadFromFile("/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf"))
-    {
-        std::cout << "ERROR::GAME::INITGUI::Failed to load font" << "\n";
-    }
-
-    //Init point text
-    this->pointText.setFont(this->font);
-    this->pointText.setCharacterSize(24);
-    this->pointText.setFillColor(sf::Color::White);
-    this->pointText.setString("None");
-    this->pointText.setPosition(sf::Vector2f(650.f, 10.f));
-
-    this->gameOverText.setFont(this->font);
-    this->gameOverText.setCharacterSize(60);
-    this->gameOverText.setFillColor(sf::Color::Red);
-    this->gameOverText.setString("Game Over!");
-    
-    //Init player GUI
-    this->playerHpBar.setSize(sf::Vector2f(300.f, 25.f));
-    this->playerHpBar.setFillColor(sf::Color::Red);
-    this->playerHpBar.setPosition(sf::Vector2f(20.f, 20.f));
-
-    this->playerHpBarBack = this->playerHpBar;
-    this->playerHpBarBack.setFillColor(sf::Color(25, 25, 25, 200));
-}
-
 void Game::updatePollEvents()
 {
+    // Event handling for Esc and Closr.
     sf::Event event;
 
     while(this->window->pollEvent(event))
@@ -137,35 +155,30 @@ void Game::updatePollEvents()
 }
 
 void Game::updateBullets()
-{
+{   
+    // Updating the movement of bullets and deleting them when they strike or go out of bounds.
     unsigned int counter = 0;
     while(!this->bullets.empty() && counter < this->bullets.size())
     {
         Bullet *bullet = this->bullets[counter];
         bullet->update();
 
-        //Bullet culling (sides of screen)
+        //Bullet culling (Top of screen)
         if(bullet->getBounds().top  < 0.f || bullet->getBounds().top>this->window->getSize().y)
         {
-            //Delete bullet
-            // delete this->bullets[counter];
-            // this->bullets[counter]=nullptr;
+
             bullets.erase(bullets.begin() + counter);
             counter--;
         }
         else if(bullet->getBounds().left + bullet->getBounds().width > this->window->getSize().x)
         {
-            //Delete bullet
-            // delete this->bullets[counter];
-            // this->bullets[counter]=nullptr;
+            // Bullet culling right of screen.
             bullets.erase(bullets.begin() + counter);
             counter--;
         }
         else if(bullet->getBounds().left <0.f)
         {
-            //Delete bullet
-            // delete this->bullets[counter];
-            // this->bullets[counter]=nullptr;
+            // Bullet culling left of screen.
             bullets.erase(bullets.begin() + counter);
             counter--;
         }
@@ -198,16 +211,14 @@ void Game::updateEnemiesAndCombat()
         //Enemy player collision
         unsigned int k=0;
         while(k < this->bullets.size())
-        {
+        {   
+            // When the bullet strikes the debris.
             if(enemy->getBounds().intersects(this->bullets[k]->getBounds()))
             {   
+                // When the debris is destroyed.
                 if(enemy->getHp() <= this->bullets[k]->getDamage())
                 {
                     this->points += 1;
-                    // delete this->enemies[counter];
-                    // delete this->bullets[k];
-                    // this->bullets[k]=nullptr;
-                    // this->enemies[counter]=nullptr;
 
                     this->enemies.erase(this->enemies.begin() + counter);
                     this->bullets.erase(this->bullets.begin() + k);
@@ -217,10 +228,8 @@ void Game::updateEnemiesAndCombat()
                     break;
                 }
                 else
-                {
+                {   // When the debris is not destroyed.
                     enemy->takeDamage(this->bullets[k]->getDamage());
-                    // delete this->bullets[k];
-                    // this->bullets[k]=nullptr;
                     this->bullets.erase(this->bullets.begin() + k);
                     k--;
                     break;
@@ -229,13 +238,12 @@ void Game::updateEnemiesAndCombat()
             k++;
         }
 
-        //Enemy culling (bottom of screen)
+        // Enemy culling (bottom of screen)
         if(!enemy_removed)
         {
             if(enemy->getBounds().top  + enemy->getBounds().height> this->window->getSize().y)
             {
                 //Delete enemy
-                // delete this->enemies[counter];
                 this->enemies.erase(this->enemies.begin() + counter);
                 enemy_removed=true;
                 counter--;
@@ -246,8 +254,6 @@ void Game::updateEnemiesAndCombat()
         if(enemy->getBounds().intersects(this->player->getBounds()))
         {
             this->player->loseHp(this->enemies[counter]->getDamage());
-            // delete this->enemies[counter];
-            // this->enemies[counter]=nullptr;8
             this->enemies.erase(this->enemies.begin() + counter);
             counter--;
         }
@@ -261,23 +267,35 @@ void Game::updateInput()
     // Shoot bullets
     if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && this->player->canAttack()){
         this->bullets.push_back(new Bullet(this->textures["BULLET"], this->player->getPos().x + this->player->direction * this->player->getBounds().width/2, this->player->getPos().y + 30, this->player->direction, 0.f, 5.f));
-        // std::cout<<"Bullet count: "<<this->bullets.size()<<std::endl;
     }
 }
 
 void Game::movePlayer(const std_msgs::Float32MultiArray::ConstPtr& msg)
 {
-    ROS_INFO("I heard: [%f]", msg->data[0]);
-    ROS_INFO("I heard: [%f]", msg->data[1]);
     //Move player
-    // this->player->move(std::min(0.01,(double)msg->data[0]),std::min(0.01,(double)msg->data[1]));
     this->player->move(msg->data[0],msg->data[1],this->window);
 }
 
+void Game::updateGUI()
+{   // This function updates the Points and Player Health Bar.
+    std::stringstream ss;
+
+    ss << "Points: " << this->points;
+
+    this->pointText.setString(ss.str());
+
+    //Update player GUI
+    float hpPercent = static_cast<float>(this->player->getHp())/this->player->getHpMax();
+    this->playerHpBar.setSize(sf::Vector2f(300.f * hpPercent, this->playerHpBar.getSize().y));
+
+}
+
 void Game::update()
-{
+{   // This function updates the game objects.
     
     this->player->update(this->window);
+
+    // Checking if the player has lost all health.
     if(this->player->getHp() <= 0)
         this->endGame=true;
     
@@ -288,13 +306,16 @@ void Game::update()
 
 }
 
-void Game::initWorld()
+void Game::renderGUI()
 {
-    if(!this->worldBackgroundTex.loadFromFile("/home/shivaram/Code/sfml_tutorials/Textures/space.jpg")){
-        std::cout<<"ERROR::GAME::INITWORLD::Failed to load world background texture"<<std::endl;
-    }
-    this->worldBackground.setTexture(this->worldBackgroundTex);
+    this->window->draw(this->pointText);
+    this->window->draw(this->playerHpBarBack);
+    this->window->draw(this->playerHpBar);
+}
 
+void Game::renderWorld()
+{
+    this->window->draw(this->worldBackground);
 }
 
 void Game::render()
@@ -327,31 +348,4 @@ void Game::render()
 
     //Draw game
     this->window->display();
-}
-
-void Game::updateGUI()
-{
-    std::stringstream ss;
-
-    ss << "Points: " << this->points;
-
-    this->pointText.setString(ss.str());
-
-    //Update player GUI
-    float hpPercent = static_cast<float>(this->player->getHp())/this->player->getHpMax();
-    this->playerHpBar.setSize(sf::Vector2f(300.f * hpPercent, this->playerHpBar.getSize().y));
-
-
-}
-
-void Game::renderGUI()
-{
-    this->window->draw(this->pointText);
-    this->window->draw(this->playerHpBarBack);
-    this->window->draw(this->playerHpBar);
-}
-
-void Game::renderWorld()
-{
-    this->window->draw(this->worldBackground);
 }
