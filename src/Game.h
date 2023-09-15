@@ -18,7 +18,6 @@
 #include <sstream>
 
 
-
 class Game{
 private:
     //Variables
@@ -28,7 +27,7 @@ private:
     sf::Clock dtClock;
     int points;
     bool endGame;
-    string PACKAGE_PATH;
+    std::string PACKAGE_PATH;
 
 
     //GUI
