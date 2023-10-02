@@ -24,8 +24,12 @@ void Player::initTexture()
 
 void Player::initSprite()
 {
-    this->sprite.setPosition(200.f, 200.f);
+    this->sprite.setPosition(200.f, 200.f);   // Setting the starting position of the player.
 }
+
+/******************************************************************************
+*                       PUBLIC METHOD DEFINITIONS                             *
+*******************************************************************************/
 
 Player::Player(float x, float y)
 {   
@@ -60,6 +64,7 @@ const float &Player::getHpMax() const
     return this->hpMax;
 }
 
+// The function checks if the shoot button has been pressed for long.
 const bool Player::canAttack()
 {
     if(this->attackCooldown >= this->attackCooldownMax)
@@ -72,6 +77,9 @@ const bool Player::canAttack()
 
 void Player::loseHp(int hp)
 {
+    // This function reduces the health of the player. 
+    // Called when the player collides with the falling debris.
+    
     this->hp-=hp;
     if(this->hp < 0)
         this->hp = 0;
@@ -79,6 +87,7 @@ void Player::loseHp(int hp)
 
 void Player::move(const float dir_x, const float dir_y,sf::RenderTarget* target)
 {
+    // This section of the code is used to flip the sprite when the player changes direction.
     if(dir_x<0){
         if(this->direction==1){
             this->direction = -1;
@@ -108,12 +117,16 @@ void Player::move(const float dir_x, const float dir_y,sf::RenderTarget* target)
 
 void Player::updateAttack()
 {
+    // This function is used to update the attack cooldown.
+
     if(this->attackCooldown < this->attackCooldownMax)
         this->attackCooldown += 0.5f;
 }
 
 void Player::updateInput(sf::RenderTarget *target)
 {
+    // This function is used to move the player using the keyboard.
+
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)){
         if(this->direction==1){
             this->direction = -1;
@@ -151,6 +164,7 @@ void Player::updateInput(sf::RenderTarget *target)
 
 void Player::update(sf::RenderTarget *target)
 {
+    // Updating all Player variables.
     this->updateInput(target);
     this->updateAttack();
 }
