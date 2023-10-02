@@ -24,7 +24,7 @@ void Game::initTextures()
 
 void Game::initWindow()
 {
-    this->videoMode = sf::VideoMode(800, 600);  // This is where the size of the window is set.
+    this->videoMode = sf::VideoMode(this->config["Window"]["Width"].as<int>(), this->config["Window"]["Height"].as<int>());  // This is where the size of the window is set.
     this->window = new sf::RenderWindow(this->videoMode, "Space Apocalypse", sf::Style::Titlebar | sf::Style::Close);
     this->window->setFramerateLimit(60);
     this->window->setVerticalSyncEnabled(false);

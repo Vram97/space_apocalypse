@@ -1,19 +1,21 @@
-#include <iostream>
 #include "Player.h"
+
+#include <iostream>
 
 void Player::initVariables()
 {
-    this->movementSpeed = 300.f;
+    this->movementSpeed = 300.f;    // This is used by the move Player function that tracks the hand movement.
     this->attackCooldownMax = 10.f;
-    this->attackCooldown = this->attackCooldownMax;
+    this->attackCooldown = this->attackCooldownMax;  // This helps prevent the user from shooting continuously.
     this->direction = 1.0f;
-    this->hpMax=10.0f;
+    this->hpMax=10.0f;    // Full health of the player
     this->hp = this->hpMax;
+    this->PACKAGE_PATH = ros::package::getPath("space_apocalypse");  // Path to the package.
 }
 
 void Player::initTexture()
 {
-    if(!this->texture.loadFromFile("/home/shivaram/Code/sfml_tutorials/Textures/shooter.png"))
+    if(!this->texture.loadFromFile(this->PACKAGE_PATH + "/data/Textures/shooter.png"))
     {
         std::cout << "ERROR::PLAYER::INITTEXTURE::Could not load texture file." << std::endl;
     }
@@ -77,7 +79,6 @@ void Player::loseHp(int hp)
 
 void Player::move(const float dir_x, const float dir_y,sf::RenderTarget* target)
 {
-    // std::cout<<dir_x<<" "<<dir_y<<std::endl;
     if(dir_x<0){
         if(this->direction==1){
             this->direction = -1;
