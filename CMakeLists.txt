@@ -128,6 +128,10 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+
+  #Add include folder
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+
 )
 
 # include_directories(${OpenCV_INCLUDE_DIRS})

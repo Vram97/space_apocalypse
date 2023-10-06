@@ -1,1 +1,5 @@
 FrameRate: 25  # Set the frame rate based on your camera's frame rate.
+
+Window:
+  Width: 800  # Set the width of the window.
+  Height: 600  # Set the height of the window.

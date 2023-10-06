@@ -80,8 +80,9 @@ void Game::initWorld()
     this->worldBackground.setTexture(this->worldBackgroundTex);
 
 }
+
 /******************************************************************************
-*                       PUBLIC METHOD DEFINITIONS                             *                       *
+*                       PUBLIC METHOD DEFINITIONS                             *
 *******************************************************************************/
 
 Game::Game()
